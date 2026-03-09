@@ -137,7 +137,8 @@ def _map_normalized_span_to_original(
 
     orig_start = pos_map[norm_start]
     last_idx = min(norm_end - 1, len(pos_map) - 1)
-    orig_end = pos_map[last_idx] + 1
+    # 防止 orig_end 超出原始文本长度
+    orig_end = min(pos_map[last_idx] + 1, original_len)
     return (orig_start, orig_end)
 
 

@@ -253,8 +253,8 @@ def main() -> None:
     parser.add_argument(
         "--accuracy-threshold",
         type=float,
-        default=0.60,
-        help="整体准确率通过阈值，低于此值脚本以非零状态退出（默认：0.60）",
+        default=0.80,
+        help="整体准确率通过阈值，低于此值脚本以非零状态退出（默认：0.80）",
     )
     args = parser.parse_args()
 

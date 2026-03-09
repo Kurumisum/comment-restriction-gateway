@@ -32,11 +32,20 @@ logger = logging.getLogger(__name__)
 
 # ── 风险等级阈值配置（可通过环境变量覆盖） ──────────────────────────────────
 # 规则命中数量 >= 该值时直接 block
-RULE_BLOCK_THRESHOLD = int(os.getenv("RULE_BLOCK_THRESHOLD", "1"))
+try:
+    RULE_BLOCK_THRESHOLD = int(os.getenv("RULE_BLOCK_THRESHOLD", "1"))
+except ValueError:
+    raise ValueError("环境变量 RULE_BLOCK_THRESHOLD 必须为整数（例如：1）")
 # LLM 判断 block 所需最低置信度
-LLM_BLOCK_CONFIDENCE = float(os.getenv("LLM_BLOCK_CONFIDENCE", "0.80"))
+try:
+    LLM_BLOCK_CONFIDENCE = float(os.getenv("LLM_BLOCK_CONFIDENCE", "0.80"))
+except ValueError:
+    raise ValueError("环境变量 LLM_BLOCK_CONFIDENCE 必须为 0-1 之间的浮点数（例如：0.80）")
 # LLM 判断 review 所需最低置信度
-LLM_REVIEW_CONFIDENCE = float(os.getenv("LLM_REVIEW_CONFIDENCE", "0.50"))
+try:
+    LLM_REVIEW_CONFIDENCE = float(os.getenv("LLM_REVIEW_CONFIDENCE", "0.50"))
+except ValueError:
+    raise ValueError("环境变量 LLM_REVIEW_CONFIDENCE 必须为 0-1 之间的浮点数（例如：0.50）")
 
 
 # ── Pydantic 模型（OpenAPI schema） ─────────────────────────────────────────
