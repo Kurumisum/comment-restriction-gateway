@@ -1,0 +1,104 @@
+[
+  {
+    "description": "明显辱骂 - 直接使用辱骂词汇",
+    "text": "你真是个傻逼，滚你妈的！",
+    "expected_risk_level": "block",
+    "expected_labels": ["abuse"]
+  },
+  {
+    "description": "明显辱骂 - 人身攻击",
+    "text": "这个人就是个废物脑残，说的什么东西",
+    "expected_risk_level": "block",
+    "expected_labels": ["abuse"]
+  },
+  {
+    "description": "明显诈骗 - 虚假收益",
+    "text": "投资理财，日入过万，稳赚不赔，快来加入！",
+    "expected_risk_level": "block",
+    "expected_labels": ["fraud"]
+  },
+  {
+    "description": "明显诈骗 - 诱导转账",
+    "text": "您已获得大奖，请扫码转账缴纳保证金即可领取",
+    "expected_risk_level": "block",
+    "expected_labels": ["fraud"]
+  },
+  {
+    "description": "明显色情 - 直接性描述",
+    "text": "一起来裸聊吧，发私人裸照",
+    "expected_risk_level": "block",
+    "expected_labels": ["sex"]
+  },
+  {
+    "description": "明显色情 - 性服务引流",
+    "text": "上门服务，特殊服务，价格优惠，微信联系",
+    "expected_risk_level": "block",
+    "expected_labels": ["sex"]
+  },
+  {
+    "description": "绕过尝试 - 辱骂词加空格",
+    "text": "你 是 个 傻 逼",
+    "expected_risk_level": "block",
+    "expected_labels": ["abuse"]
+  },
+  {
+    "description": "绕过尝试 - 谐音字替换（草→操）",
+    "text": "草你妈的，滚！",
+    "expected_risk_level": "block",
+    "expected_labels": ["abuse"]
+  },
+  {
+    "description": "绕过尝试 - 诈骗词加星号",
+    "text": "日*赚*千*元，在家轻松赚钱，无风险投资",
+    "expected_risk_level": "block",
+    "expected_labels": ["fraud"]
+  },
+  {
+    "description": "边缘案例 - 含敏感词但非违规语境",
+    "text": "今天去鱼塘钓了一条大草鱼，好开心",
+    "expected_risk_level": "allow",
+    "expected_labels": []
+  },
+  {
+    "description": "边缘案例 - 投资建议（非诈骗）",
+    "text": "买指数基金长期持有，历史上看收益不错，但有风险请谨慎",
+    "expected_risk_level": "allow",
+    "expected_labels": []
+  },
+  {
+    "description": "正常评论 - 产品好评",
+    "text": "这款手机真的很好用，拍照效果超赞，值得购买！",
+    "expected_risk_level": "allow",
+    "expected_labels": []
+  },
+  {
+    "description": "正常评论 - 餐厅评价",
+    "text": "这家餐厅的菜品很新鲜，服务态度也很好，下次还会来",
+    "expected_risk_level": "allow",
+    "expected_labels": []
+  },
+  {
+    "description": "复合风险 - 辱骂+诈骗",
+    "text": "你这个傻逼不知道日入过万是什么感觉吧，快来投资",
+    "expected_risk_level": "block",
+    "expected_labels": ["abuse", "fraud"]
+  },
+  {
+    "description": "边缘案例 - 中奖通知（疑似诈骗）",
+    "text": "恭喜您中奖，请点击链接领取奖品，限时24小时有效",
+    "expected_risk_level": "block",
+    "expected_labels": ["fraud"]
+  },
+  {
+    "description": "绕过尝试 - 全角字符诈骗词",
+    "text": "日賺千元，穩賺不賠，快来加微信",
+    "expected_risk_level": "block",
+    "expected_labels": ["fraud"]
+  },
+  {
+    "description": "正常讨论 - 关于网络安全的学术讨论",
+    "text": "近年来网络诈骗案例增多，大家要提高警惕，不要轻信陌生人的转账请求",
+    "expected_risk_level": "allow",
+    "expected_labels": []
+  }
+]
