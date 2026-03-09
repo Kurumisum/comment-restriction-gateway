@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import re
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -26,6 +27,9 @@ _WORD_LIST_FILES: dict[str, str] = {
 _word_lists: dict[str, list[str]] | None = None
 # 预计算的规范化关键词缓存：{category: [(original, normalized), ...]}
 _normalized_kw_cache: dict[str, list[tuple[str, str]]] | None = None
+# 保护缓存初始化的可重入锁（防止多线程并发下的竞态条件）
+# 使用 RLock 而非 Lock，允许同一线程多次获取（如 _get_normalized_keywords 调用 get_word_lists）
+_cache_lock = threading.RLock()
 
 
 @dataclass
@@ -57,39 +61,44 @@ def _load_word_list(filepath: Path) -> list[str]:
 
 
 def get_word_lists() -> dict[str, list[str]]:
-    """获取所有类别的词表（带缓存）"""
+    """获取所有类别的词表（带缓存，线程安全）"""
     global _word_lists
     if _word_lists is None:
-        _word_lists = {}
-        for category, filename in _WORD_LIST_FILES.items():
-            filepath = _DATA_DIR / filename
-            _word_lists[category] = _load_word_list(filepath)
+        with _cache_lock:
+            if _word_lists is None:  # 双重检查锁定
+                _word_lists = {}
+                for category, filename in _WORD_LIST_FILES.items():
+                    filepath = _DATA_DIR / filename
+                    _word_lists[category] = _load_word_list(filepath)
     return _word_lists
 
 
 def _get_normalized_keywords() -> dict[str, list[tuple[str, str]]]:
     """
-    获取预规范化的关键词对缓存。
+    获取预规范化的关键词对缓存（线程安全）。
     每个条目为 (original_keyword, normalized_keyword)。
     在首次调用时计算并缓存，避免每次请求重复规范化。
     """
     global _normalized_kw_cache
     if _normalized_kw_cache is None:
-        _normalized_kw_cache = {}
-        word_lists = get_word_lists()
-        for category, keywords in word_lists.items():
-            pairs: list[tuple[str, str]] = []
-            for kw in keywords:
-                pairs.append((kw, normalize(kw)))
-            _normalized_kw_cache[category] = pairs
+        with _cache_lock:
+            if _normalized_kw_cache is None:  # 双重检查锁定
+                _normalized_kw_cache = {}
+                word_lists = get_word_lists()
+                for category, keywords in word_lists.items():
+                    pairs: list[tuple[str, str]] = []
+                    for kw in keywords:
+                        pairs.append((kw, normalize(kw)))
+                    _normalized_kw_cache[category] = pairs
     return _normalized_kw_cache
 
 
 def reload_word_lists() -> None:
-    """强制重新加载词表（用于热更新场景）"""
+    """强制重新加载词表（用于热更新场景，线程安全）"""
     global _word_lists, _normalized_kw_cache
-    _word_lists = None
-    _normalized_kw_cache = None
+    with _cache_lock:
+        _word_lists = None
+        _normalized_kw_cache = None
     get_word_lists()
 
 

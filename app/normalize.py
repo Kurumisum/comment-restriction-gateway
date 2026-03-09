@@ -11,10 +11,13 @@ import unicodedata
 _FULLWIDTH_OFFSET = 0xFEE0
 _FULLWIDTH_SPACE = "\u3000"  # 全角空格单独处理
 
+# 去除分隔符时的最大迭代次数（防止边界情况下的无限循环）
+_MAX_SEP_REMOVAL_ITERATIONS = 20
+
 # ── 繁体字到简体字的基础映射（常用字） ───────────────────────────────────────
 # 仅包含与风险词汇相关的常用繁体字，避免引入过重的依赖
 _TRAD_TO_SIMP: dict[str, str] = {
-    "幹": "干", "媽": "妈", "妳": "你", "妳": "你",
+    "幹": "干", "媽": "妈", "妳": "你",
     "臺": "台", "發": "发", "傳": "传", "點": "点",
     "錢": "钱", "騙": "骗", "賺": "赚", "贏": "赢",
     "賭": "赌", "愛": "爱", "親": "亲", "覺": "觉",
@@ -64,7 +67,6 @@ _SPLIT_CHAR_MAP: dict[str, str] = {
     "日月": "明",
     "土也": "地",
     "氵去": "法",
-    "扌莫": "摸",
     "扌莫": "摸",
     "女马": "妈",
     "女鸟": "妈",  # 另一种拆法
@@ -155,7 +157,7 @@ def _remove_separators(text: str) -> str:
         r"([\u4e00-\u9fff\u3400-\u4dbf])[_\-\.·•*＊×x×]([\u4e00-\u9fff\u3400-\u4dbf])"
     )
     # 循环替换，直至文本稳定（处理 "你 是 个 傻 逼" 这类多个空格的情况）
-    for _ in range(20):  # 最多迭代 20 次，防止无限循环
+    for _ in range(_MAX_SEP_REMOVAL_ITERATIONS):
         new_text = _space_re.sub(r"\1\2", text)
         new_text = _punct_re.sub(r"\1\2", new_text)
         if new_text == text:
@@ -319,7 +321,7 @@ def normalize_with_mapping(text: str) -> tuple[str, list[int]]:
             r"([\u4e00-\u9fff\u3400-\u4dbf])([\s_\-\.·•*＊×x×]+)([\u4e00-\u9fff\u3400-\u4dbf])"
         )
         chars = list(s)
-        for _ in range(20):  # 最多迭代 20 次
+        for _ in range(_MAX_SEP_REMOVAL_ITERATIONS):  # 最多迭代，防止无限循环
             joined = "".join(chars)
             to_delete: set[int] = set()
             for m in _sep_re.finditer(joined):

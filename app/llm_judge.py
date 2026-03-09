@@ -12,6 +12,9 @@ from dataclasses import dataclass, field
 
 from openai import AsyncOpenAI, APIError, APITimeoutError, RateLimitError
 
+# LLM API 调用超时时间（秒），支持通过环境变量覆盖
+_LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "15.0"))
+
 logger = logging.getLogger(__name__)
 
 # ── 系统提示词（中文"审核官"角色） ─────────────────────────────────────────
@@ -181,7 +184,7 @@ async def llm_judge(
             ],
             temperature=0.1,    # 低温度保证判断一致性
             max_tokens=512,
-            timeout=15.0,       # 15 秒超时
+            timeout=_LLM_TIMEOUT,
         )
         content = response.choices[0].message.content or ""
         return _parse_llm_response(content)

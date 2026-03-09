@@ -250,6 +250,12 @@ def main() -> None:
         default=None,
         help="将报告保存为 JSON 文件（可选）",
     )
+    parser.add_argument(
+        "--accuracy-threshold",
+        type=float,
+        default=0.60,
+        help="整体准确率通过阈值，低于此值脚本以非零状态退出（默认：0.60）",
+    )
     args = parser.parse_args()
 
     if not args.data.exists():
@@ -271,9 +277,10 @@ def main() -> None:
             json.dump(output_data, f, ensure_ascii=False, indent=2)
         print(f"📄 报告已保存到：{args.output}")
 
-    # 根据整体准确率设置退出码（< 60% 视为评估失败）
-    if report["overall_accuracy"] < 0.60:
-        print(f"⚠️  整体准确率 {report['overall_accuracy']:.1%} 低于阈值 60%，请检查词表配置")
+    # 根据整体准确率设置退出码
+    threshold = float(args.accuracy_threshold)
+    if report["overall_accuracy"] < threshold:
+        print(f"⚠️  整体准确率 {report['overall_accuracy']:.1%} 低于阈值 {threshold:.0%}，请检查词表配置")
         sys.exit(1)
 
 
